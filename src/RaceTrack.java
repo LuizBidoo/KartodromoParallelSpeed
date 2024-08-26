@@ -44,16 +44,20 @@ public class RaceTrack {
     public boolean adquirirKart(Pilot pilot) {
         kartLock.lock();
         try {
-            while (karts.stream().noneMatch(Kart::acquireKart)) {
+            while (true) {
+                for (Kart kart : karts) {
+                    if (kart.acquireKart()) {
+                        pilot.setHasKart(true);
+                        totalKartsUsados++;
+                        System.out.println(pilot.getName() + " adquiriu um kart.");
+                        return true;
+                    }
+                }
                 clientesNaFila++;
                 System.out.println(pilot.getName() + " esperando por um kart...");
                 kartCondition.await(); // Espera por um kart disponível
-                clientesNaFila--; // Decrementa quando um kart fica disponível
+                clientesNaFila--;
             }
-            pilot.setHasKart(true);
-            totalKartsUsados++;
-            System.out.println(pilot.getName() + " adquiriu um kart.");
-            return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return false;
@@ -65,16 +69,20 @@ public class RaceTrack {
     public boolean adquirirCapacete(Pilot pilot) {
         capaceteLock.lock();
         try {
-            while (capacetes.stream().noneMatch(Helmet::acquireHelmet)) {
+            while (true) {
+                for (Helmet helmet : capacetes) {
+                    if (helmet.acquireHelmet()) {
+                        pilot.setHasCapacete(true);
+                        totalCapacetesUsados++;
+                        System.out.println(pilot.getName() + " adquiriu um capacete.");
+                        return true;
+                    }
+                }
                 clientesNaFila++;
                 System.out.println(pilot.getName() + " esperando por um capacete...");
                 capaceteCondition.await(); // Espera por um capacete disponível
-                clientesNaFila--; // Decrementa quando um capacete fica disponível
+                clientesNaFila--;
             }
-            pilot.setHasCapacete(true);
-            totalCapacetesUsados++;
-            System.out.println(pilot.getName() + " adquiriu um capacete.");
-            return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return false;
