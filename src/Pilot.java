@@ -15,6 +15,7 @@ public class Pilot extends Thread {
         this.raceTrack = raceTrack;
         this.hasCapacete = false;
         this.hasKart = false;
+        this.setName(nome); // Define o nome da thread
     }
 
     public void setHasCapacete(boolean hasCapacete) {
@@ -29,6 +30,9 @@ public class Pilot extends Thread {
     public void run() {
         waitStartTime = System.currentTimeMillis();
         pilotoAdquirindoRecursos();
+        long waitEndTime = System.currentTimeMillis();
+        long waitTime = waitEndTime - waitStartTime;
+        raceTrack.updateWaitTime(waitTime);
     }
 
     public void pilotoAdquirindoRecursos() {
@@ -55,15 +59,13 @@ public class Pilot extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            long waitEndTime = System.currentTimeMillis();
-            long waitTime = waitEndTime - waitStartTime;
             if (hasCapacete) {
                 raceTrack.releaseHelmet(this);
             }
             if (hasKart) {
                 raceTrack.releaseKart(this);
             }
-            raceTrack.updateWaitTime(waitTime);
         }
     }
 }
+

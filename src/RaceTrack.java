@@ -46,10 +46,13 @@ public class RaceTrack {
         try {
             while (karts.stream().noneMatch(Kart::acquireKart)) {
                 clientesNaFila++;
+                System.out.println(pilot.getName() + " esperando por um kart...");
                 kartCondition.await(); // Espera por um kart disponível
+                clientesNaFila--; // Decrementa quando um kart fica disponível
             }
             pilot.setHasKart(true);
             totalKartsUsados++;
+            System.out.println(pilot.getName() + " adquiriu um kart.");
             return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -64,10 +67,13 @@ public class RaceTrack {
         try {
             while (capacetes.stream().noneMatch(Helmet::acquireHelmet)) {
                 clientesNaFila++;
+                System.out.println(pilot.getName() + " esperando por um capacete...");
                 capaceteCondition.await(); // Espera por um capacete disponível
+                clientesNaFila--; // Decrementa quando um capacete fica disponível
             }
             pilot.setHasCapacete(true);
             totalCapacetesUsados++;
+            System.out.println(pilot.getName() + " adquiriu um capacete.");
             return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -82,8 +88,8 @@ public class RaceTrack {
         try {
             karts.stream().filter(kart -> !kart.getIsAvailable()).findFirst().ifPresent(Kart::releaseKart);
             pilot.setHasKart(false);
-            totalClientesAtendidos++;
             kartCondition.signal(); // Notifica que um kart foi liberado
+            System.out.println(pilot.getName() + " liberou um kart.");
         } finally {
             kartLock.unlock();
         }
@@ -94,8 +100,8 @@ public class RaceTrack {
         try {
             capacetes.stream().filter(capacete -> !capacete.getIsAvailable()).findFirst().ifPresent(Helmet::releaseHelmet);
             pilot.setHasCapacete(false);
-            totalClientesAtendidos++;
             capaceteCondition.signal(); // Notifica que um capacete foi liberado
+            System.out.println(pilot.getName() + " liberou um capacete.");
         } finally {
             capaceteLock.unlock();
         }
@@ -103,6 +109,7 @@ public class RaceTrack {
 
     public synchronized void updateWaitTime(long waitTime) {
         tempoTotalDeEspera += waitTime;
+        totalClientesAtendidos++;
     }
 
     public void simulaDia(long tempoSimulacao) {

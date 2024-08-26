@@ -21,8 +21,7 @@ public class Main {
         // Cria uma lista para armazenar os pilotos
         List<Pilot> pilots = new ArrayList<>();
 
-        // Número de pilotos para a simulação
-        int numberOfPilots = 20;
+        int numberOfPilots = 25;
 
         // Cria e inicia as threads para cada piloto
         for (int i = 0; i < numberOfPilots; i++) {
@@ -43,6 +42,6 @@ public class Main {
         }
 
         // Simula o funcionamento do dia
-        raceTrack.simulaDia(60_000); // Simula 8 horas
+        raceTrack.simulaDia(60_000); // Simula 1 minuto para testes
     }
 }
