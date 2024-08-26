@@ -7,6 +7,7 @@ public class Pilot extends Thread {
     private RaceTrack raceTrack;
     private boolean hasKart;
     private boolean hasCapacete;
+    private long waitStartTime;
 
     public Pilot(String nome, RaceTrack raceTrack) {
         this.nome = nome;
@@ -26,51 +27,43 @@ public class Pilot extends Thread {
 
     @Override
     public void run() {
+        waitStartTime = System.currentTimeMillis();
         pilotoAdquirindoRecursos();
     }
 
     public void pilotoAdquirindoRecursos() {
-        long startWaitTime = System.currentTimeMillis();
-
         try {
             if (idade <= 14) { // prioridade no capacete
                 if (raceTrack.adquirirCapacete(this)) {
-                    System.out.println("Corredor " + this.nome + " pegou um capacete");
                     if (raceTrack.adquirirKart(this)) {
-                        System.out.println("Corredor " + this.nome + " pegou um kart");
                         // Simular o tempo de corrida
-                        Thread.sleep(1000); // Simula a corrida por 2 segundos
+                        Thread.sleep(gerador.nextInt(2000, 5000));
                     } else {
                         raceTrack.releaseHelmet(this);
-                        System.out.println("Corredor " + this.nome + " não pegou um kart");
                     }
                 }
             } else if (idade >= 18) { // prioridade no kart
                 if (raceTrack.adquirirKart(this)) {
-                    System.out.println("Corredor " + this.nome + " pegou um kart");
                     if (raceTrack.adquirirCapacete(this)) {
-                        System.out.println("Corredor " + this.nome + " pegou um capacete");
                         // Simular o tempo de corrida
-                        Thread.sleep(1000); // Simula a corrida por 2 segundos
+                        Thread.sleep(gerador.nextInt(2000, 5000));
                     } else {
                         raceTrack.releaseKart(this);
-                        System.out.println("Corredor " + this.nome + " não pegou um capacete");
                     }
                 }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            long endWaitTime = System.currentTimeMillis();
-            long waitTime = endWaitTime - startWaitTime;
-            // Liberar os recursos após a corrida
+            long waitEndTime = System.currentTimeMillis();
+            long waitTime = waitEndTime - waitStartTime;
             if (hasCapacete) {
                 raceTrack.releaseHelmet(this);
             }
             if (hasKart) {
                 raceTrack.releaseKart(this);
             }
-            // Atualizar tempo de espera e outros dados, se necessário
+            raceTrack.updateWaitTime(waitTime);
         }
     }
 }
